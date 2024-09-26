@@ -1,7 +1,8 @@
 package repo
 
 import (
-	"com.xen-echo/go-repository/datasource"
+	"github.com/xen-echo/go-repository/datasource"
+	"github.com/xen-echo/go-repository/service"
 )
 
 type disk[T any] struct {
@@ -11,6 +12,10 @@ type disk[T any] struct {
 
 func NewDiskKVRepo[T any](name string) KVRepo[T] {
 	return &disk[T]{name: name, ds: datasource.NewSFPKDiskDS[T](name)}
+}
+
+func NewDiskKVRepoWithEncryption[T any](name string, encryptionService service.EncryptionService) KVRepo[T] {
+	return &disk[T]{name: name, ds: datasource.NewSFPKDiskDSWithEncryption[T](name, encryptionService)}
 }
 
 func (d *disk[T]) Set(key string, value *T, ttlSeconds int64) error {

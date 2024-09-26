@@ -1,10 +1,10 @@
 package datasource
 
 import (
-	"com.xen-echo/go-repository/domain"
-	"com.xen-echo/go-repository/service"
 	"encoding/json"
 	"fmt"
+	"github.com/xen-echo/go-repository/domain"
+	"github.com/xen-echo/go-repository/service"
 	"os"
 	"path"
 	"sync"

@@ -1,7 +1,7 @@
 package datasource
 
 import (
-	"com.xen-echo/go-repository/service"
+	"github.com/xen-echo/go-repository/service"
 	"os"
 	"strings"
 	"testing"
