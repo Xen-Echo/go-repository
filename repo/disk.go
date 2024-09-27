@@ -68,3 +68,7 @@ func (d *disk[T]) GetAll() ([]*T, error) {
 	}
 	return values, nil
 }
+
+func (d *disk[T]) KeyExists(key string) (bool, error) {
+	return d.ds.ExistsDataFile(key)
+}

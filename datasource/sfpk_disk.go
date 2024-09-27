@@ -28,6 +28,7 @@ type SFPKDiskDS[T any] interface {
 	GetAllDataFiles() ([]*SFPKDiskDatafile[T], error)
 	SaveDataFile(dataFile *SFPKDiskDatafile[T]) error
 	DeleteDataFile(name string) error
+	ExistsDataFile(name string) (bool, error)
 	Wipe() error
 }
 
@@ -194,6 +195,18 @@ func (s *sfpk[T]) DeleteDataFile(name string) error {
 	s.muMap.Delete(name)
 
 	return nil
+}
+
+func (s *sfpk[T]) ExistsDataFile(name string) (bool, error) {
+	filePath, err := s.getFilePath(name)
+	if err != nil {
+		return false, err
+	}
+	_, err = os.Stat(filePath)
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return true, nil
 }
 
 func (s *sfpk[T]) Wipe() error {

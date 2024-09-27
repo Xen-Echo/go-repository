@@ -6,4 +6,5 @@ type KVRepo[T any] interface {
 	Delete(key string) error
 	Get(key string) (*T, error)
 	GetAll() ([]*T, error)
+	KeyExists(key string) (bool, error)
 }

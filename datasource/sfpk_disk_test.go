@@ -212,3 +212,35 @@ func TestWithEncryption(t *testing.T) {
 	}
 
 }
+
+func TestExists(t *testing.T) {
+
+	ds := setup(t)
+	defer ds.Wipe()
+	defer os.Unsetenv("SFPK_ROOT")
+
+	exists, err := ds.ExistsDataFile("datafile")
+	if err != nil {
+		t.Errorf("Error checking if data file exists: %v", err)
+	}
+	if exists {
+		t.Errorf("Data file should not exist")
+	}
+
+	dataFile, _ := ds.GetDataFile("datafile")
+	dataFile.Item.Value = &data{"test"}
+	err = ds.SaveDataFile(dataFile)
+	if err != nil {
+		t.Errorf("Error saving data file: %v", err)
+	}
+	dataFile.Unlock()
+
+	exists, err = ds.ExistsDataFile("datafile")
+	if err != nil {
+		t.Errorf("Error checking if data file exists: %v", err)
+	}
+	if !exists {
+		t.Errorf("Data file should exist")
+	}
+
+}
