@@ -35,6 +35,10 @@ func (d *disk[T]) Save(key string, ttlSeconds int64, saveFunc func(*T) error) er
 		return err
 	}
 	defer df.Unlock()
+	// If the value is nil, create a new instance of T
+	if df.Item.Value == nil {
+		df.Item.Value = new(T)
+	}
 	err = saveFunc(df.Item.Value)
 	if err != nil {
 		return err
