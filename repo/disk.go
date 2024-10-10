@@ -29,6 +29,20 @@ func (d *disk[T]) Set(key string, value *T, ttlSeconds int64) error {
 	return d.ds.SaveDataFile(df)
 }
 
+func (d *disk[T]) Save(key string, ttlSeconds int64, saveFunc func(*T) error) error {
+	df, err := d.ds.GetDataFile(key)
+	if err != nil {
+		return err
+	}
+	defer df.Unlock()
+	err = saveFunc(df.Item.Value)
+	if err != nil {
+		return err
+	}
+	df.Item.TTLSeconds = ttlSeconds
+	return d.ds.SaveDataFile(df)
+}
+
 func (d *disk[T]) Touch(key string, ttlSeconds int64) error {
 	df, err := d.ds.GetDataFile(key)
 	if err != nil {
