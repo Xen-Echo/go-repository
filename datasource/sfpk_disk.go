@@ -3,12 +3,14 @@ package datasource
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/xen-echo/go-repository/domain"
-	"github.com/xen-echo/go-repository/service"
 	"os"
 	"path"
+	"strings"
 	"sync"
 	"time"
+
+	"github.com/xen-echo/go-repository/domain"
+	"github.com/xen-echo/go-repository/service"
 )
 
 // SINGLE FILE PER KEY DISK DATAFILE
@@ -147,7 +149,14 @@ func (s *sfpk[T]) GetAllDataFiles() ([]*SFPKDiskDatafile[T], error) {
 			continue
 		}
 
-		dataFile, err := s.GetDataFile(file.Name())
+		// Get the name and strip the extension
+		name := file.Name()
+		parts := strings.Split(name, ".")
+		if len(parts) > 1 {
+			name = strings.Join(parts[:len(parts)-1], ".")
+		}
+
+		dataFile, err := s.GetDataFile(name)
 		if err != nil {
 			return nil, err
 		}

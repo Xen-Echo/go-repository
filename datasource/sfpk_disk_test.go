@@ -244,3 +244,50 @@ func TestExists(t *testing.T) {
 	}
 
 }
+
+func TestGetAllDataFiles(t *testing.T) {
+
+	ds := setup(t)
+	defer ds.Wipe()
+	defer os.Unsetenv("SFPK_ROOT")
+
+	dataFile1, _ := ds.GetDataFile("datafile1")
+	dataFile1.Item.Value = &data{"test1"}
+	ds.SaveDataFile(dataFile1)
+	dataFile1.Unlock()
+
+	dataFile2, _ := ds.GetDataFile("datafile2")
+	dataFile2.Item.Value = &data{"test2"}
+	ds.SaveDataFile(dataFile2)
+	dataFile2.Unlock()
+
+	dataFile3, _ := ds.GetDataFile("datafile3")
+	dataFile3.Item.Value = &data{"test3"}
+	ds.SaveDataFile(dataFile3)
+	dataFile3.Unlock()
+
+	dataFiles, err := ds.GetAllDataFiles()
+	if err != nil {
+		t.Errorf("Error getting all data files: %v", err)
+	}
+	for _, dataFile := range dataFiles {
+		defer dataFile.Unlock()
+	}
+
+	if len(dataFiles) != 3 {
+		t.Errorf("Data files length is not 3")
+	}
+
+	if dataFiles[0].Item.Value.Test != "test1" {
+		t.Errorf("Data file 1 value is not correct")
+	}
+
+	if dataFiles[1].Item.Value.Test != "test2" {
+		t.Errorf("Data file 2 value is not correct")
+	}
+
+	if dataFiles[2].Item.Value.Test != "test3" {
+		t.Errorf("Data file 3 value is not correct")
+	}
+
+}
