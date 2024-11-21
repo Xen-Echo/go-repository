@@ -28,6 +28,7 @@ func (d *SFPKDiskDatafile[T]) Unlock() {
 type SFPKDiskDS[T any] interface {
 	GetDataFile(name string) (*SFPKDiskDatafile[T], error)
 	GetAllDataFiles() ([]*SFPKDiskDatafile[T], error)
+	GetAllDataFileNames() ([]string, error)
 	SaveDataFile(dataFile *SFPKDiskDatafile[T]) error
 	DeleteDataFile(name string) error
 	ExistsDataFile(name string) (bool, error)
@@ -132,6 +133,14 @@ func (s *sfpk[T]) GetDataFile(name string) (*SFPKDiskDatafile[T], error) {
 	return &SFPKDiskDatafile[T]{FilePath: filePath, Item: item, mu: mu}, nil
 }
 
+func stripExtension(name string) string {
+	parts := strings.Split(name, ".")
+	if len(parts) > 1 {
+		name = strings.Join(parts[:len(parts)-1], ".")
+	}
+	return name
+}
+
 func (s *sfpk[T]) GetAllDataFiles() ([]*SFPKDiskDatafile[T], error) {
 	fileDir, err := s.getFileDir()
 	if err != nil {
@@ -150,11 +159,7 @@ func (s *sfpk[T]) GetAllDataFiles() ([]*SFPKDiskDatafile[T], error) {
 		}
 
 		// Get the name and strip the extension
-		name := file.Name()
-		parts := strings.Split(name, ".")
-		if len(parts) > 1 {
-			name = strings.Join(parts[:len(parts)-1], ".")
-		}
+		name := stripExtension(file.Name())
 
 		dataFile, err := s.GetDataFile(name)
 		if err != nil {
@@ -165,6 +170,32 @@ func (s *sfpk[T]) GetAllDataFiles() ([]*SFPKDiskDatafile[T], error) {
 	}
 
 	return dataFiles, nil
+}
+
+func (s *sfpk[T]) GetAllDataFileNames() ([]string, error) {
+	fileDir, err := s.getFileDir()
+	if err != nil {
+		return nil, err
+	}
+
+	files, err := os.ReadDir(fileDir)
+	if err != nil {
+		return nil, err
+	}
+
+	names := make([]string, 0)
+	for _, file := range files {
+		if file.IsDir() {
+			continue
+		}
+
+		// Get the name and strip the extension
+		name := stripExtension(file.Name())
+
+		names = append(names, name)
+	}
+
+	return names, nil
 }
 
 func (s *sfpk[T]) SaveDataFile(dataFile *SFPKDiskDatafile[T]) error {

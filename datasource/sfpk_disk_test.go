@@ -291,3 +291,47 @@ func TestGetAllDataFiles(t *testing.T) {
 	}
 
 }
+
+func TestGetAllDataFileNames(t *testing.T) {
+
+	ds := setup(t)
+	defer ds.Wipe()
+	defer os.Unsetenv("SFPK_ROOT")
+
+	dataFile1, _ := ds.GetDataFile("datafile1")
+	dataFile1.Item.Value = &data{"test1"}
+	ds.SaveDataFile(dataFile1)
+	dataFile1.Unlock()
+
+	dataFile2, _ := ds.GetDataFile("datafile2")
+	dataFile2.Item.Value = &data{"test2"}
+	ds.SaveDataFile(dataFile2)
+	dataFile2.Unlock()
+
+	dataFile3, _ := ds.GetDataFile("datafile3")
+	dataFile3.Item.Value = &data{"test3"}
+	ds.SaveDataFile(dataFile3)
+	dataFile3.Unlock()
+
+	dataFiles, err := ds.GetAllDataFileNames()
+	if err != nil {
+		t.Errorf("Error getting all data file names: %v", err)
+	}
+
+	if len(dataFiles) != 3 {
+		t.Errorf("Data files length is not 3")
+	}
+
+	if dataFiles[0] != "datafile1" {
+		t.Errorf("Data file 1 name is not correct")
+	}
+
+	if dataFiles[1] != "datafile2" {
+		t.Errorf("Data file 2 name is not correct")
+	}
+
+	if dataFiles[2] != "datafile3" {
+		t.Errorf("Data file 3 name is not correct")
+	}
+
+}
