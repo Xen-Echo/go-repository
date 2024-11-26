@@ -9,4 +9,5 @@ type KVRepo[T any] interface {
 	GetAll() ([]*T, error)
 	GetAllKeys() ([]string, error)
 	KeyExists(key string) (bool, error)
+	LastModifiedSeconds(key string) (int64, error)
 }

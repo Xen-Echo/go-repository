@@ -335,3 +335,25 @@ func TestGetAllDataFileNames(t *testing.T) {
 	}
 
 }
+
+func TestGetLastModifiedSeconds(t *testing.T) {
+
+	ds := setup(t)
+	defer ds.Wipe()
+	defer os.Unsetenv("SFPK_ROOT")
+
+	dataFile, _ := ds.GetDataFile("datafile")
+	dataFile.Item.Value = &data{"test"}
+	ds.SaveDataFile(dataFile)
+	dataFile.Unlock()
+
+	lastModified, err := ds.LastModifiedSeconds("datafile")
+	if err != nil {
+		t.Errorf("Error getting last modified seconds: %v", err)
+	}
+
+	if lastModified == 0 {
+		t.Errorf("Last modified seconds is 0")
+	}
+
+}

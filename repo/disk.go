@@ -94,3 +94,7 @@ func (d *disk[T]) GetAllKeys() ([]string, error) {
 func (d *disk[T]) KeyExists(key string) (bool, error) {
 	return d.ds.ExistsDataFile(key)
 }
+
+func (d *disk[T]) LastModifiedSeconds(key string) (int64, error) {
+	return d.ds.LastModifiedSeconds(key)
+}

@@ -32,6 +32,7 @@ type SFPKDiskDS[T any] interface {
 	SaveDataFile(dataFile *SFPKDiskDatafile[T]) error
 	DeleteDataFile(name string) error
 	ExistsDataFile(name string) (bool, error)
+	LastModifiedSeconds(name string) (int64, error)
 	Wipe() error
 }
 
@@ -247,6 +248,34 @@ func (s *sfpk[T]) ExistsDataFile(name string) (bool, error) {
 		return false, nil
 	}
 	return true, nil
+}
+
+func (s *sfpk[T]) LastModifiedSeconds(name string) (int64, error) {
+	filePath, err := s.getFilePath(name)
+	if err != nil {
+		return 0, err
+	}
+
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		return 0, nil
+	}
+
+	data, err := os.ReadFile(filePath)
+	if err != nil {
+		return 0, err
+	}
+
+	if s.encryptionService != nil && string(data) != "{}" {
+		data, err = s.encryptionService.Decrypt(data)
+	}
+
+	item := domain.Item[T]{}
+	err = json.Unmarshal(data, &item)
+	if err != nil {
+		return 0, err
+	}
+
+	return item.ModifiedAtSeconds, nil
 }
 
 func (s *sfpk[T]) Wipe() error {
